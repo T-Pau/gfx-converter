@@ -1,6 +1,8 @@
 This is gfx-convert, a toolbox for converting images to various
 formats used by 8-bit computers.
 
+It is written in C++17.
+
 See the [INSTALL.md](INSTALL.md) file for installation instructions and
 dependencies.
 

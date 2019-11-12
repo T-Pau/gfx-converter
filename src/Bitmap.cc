@@ -1,5 +1,5 @@
 /*
-  TextScreen.cc -- screen with charset, screen and color RAM.
+  Bitmap.cc -- bitmap with color information
   Copyright (C) 2019 Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
@@ -32,48 +32,45 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Exception.h"
-#include "TextScreen.h"
+#include "Bitmap.h"
 
-TextScreen::TextScreen(size_t width, size_t height) : screen(width, height), colors(width, height) {
+#include "Exception.h"
+#include "utils.h"
+
+Bitmap::Bitmap(size_t w, size_t h) : width(w), height(h), bitmap(std::make_unique<uint8_t[]>(width * height * 8)), screen(width, height) {
 }
 
-
-TextScreen::TextScreen(std::shared_ptr<Image> image, uint8_t background_color) : screen(image->get_width() / 8, image->get_height() / 8), colors(image->get_width() / 8, image->get_height() / 8) {
+Bitmap::Bitmap(std::shared_ptr<Image> image, std::optional<uint8_t> background_color, std::optional<uint8_t> foreground_color) : width(image->get_width() / 8), height(image->get_height() / 8), bitmap(std::make_unique<uint8_t[]>(width * height * 8)), screen(width, height) {
     if (image->get_width() % 8 != 0 || image->get_height() % 8 != 0) {
         throw Exception("image dimensions not multiple of 8");
     }
     
-    auto bg_color = std::make_optional(background_color);
-    for (size_t screen_y = 0; screen_y < get_height(); screen_y++) {
-        for (size_t screen_x = 0; screen_x < get_width(); screen_x++) {
-            std::optional<uint8_t> foreground_color;
+    for (size_t screen_y = 0; screen_y < height; screen_y++) {
+        for (size_t screen_x = 0; screen_x < width; screen_x++) {
+            std::optional<uint8_t> bg_color = background_color;
+            std::optional<uint8_t> fg_color = foreground_color;
+            
             uint8_t tile[8];
-
+            
             for (size_t tile_y = 0; tile_y < 8; tile_y++) {
-                auto tile_byte = image->get_byte(screen_x * 8, screen_y * 8 + tile_y, bg_color, foreground_color);
-                tile[tile_y] =  tile_byte;
+                tile[tile_y] = image->get_byte(screen_x * 8, screen_y * 8 + tile_y, bg_color, fg_color);
             }
-
-            screen.set(screen_x, screen_y, charset.add(tile));
-            if (foreground_color) {
-                colors.set(screen_x, screen_y, *foreground_color);
-            }
+            
+            set_tile(screen_x, screen_y, tile, bg_color ? *bg_color : 0, fg_color ? *fg_color : 0);
         }
     }
 }
 
 
-void TextScreen::set(size_t x, size_t y, const uint8_t tile[], uint8_t color) {
-    screen.set(x, y, charset.add(tile));
-    colors.set(x, y, color);
-    
+void Bitmap::set_tile(size_t x, size_t y, const uint8_t tile[], uint8_t foreground_color, uint8_t background_color) {
+    memcpy(bitmap.get() + (y * width + x) * 8, tile, 8);
+    //screen.set(x, y, background_color | (foreground_color << 4));
+    screen.set(x, y, foreground_color | (background_color << 4));
 }
 
 
-void TextScreen::save(const std::string file_name_prefix, bool full) {
-    charset.save(file_name_prefix + "-charset.bin", full);
+
+void Bitmap::save(const std::string file_name_prefix) {
+    save_file(file_name_prefix + "-bitmap.bin", bitmap.get(), width * height * 8);
     screen.save(file_name_prefix + "-screen.bin");
-    colors.save(file_name_prefix + "-colors.bin");
 }
-

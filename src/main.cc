@@ -34,6 +34,7 @@
 
 #include <iostream>
 
+#include "Bitmap.h"
 #include "Exception.h"
 #include "read_png.h"
 #include "TextScreen.h"
@@ -84,7 +85,10 @@ int main(int argc, const char * argv[]) {
             }
                 
             case FORMAT_BITMAP: {
-                // TODO
+                std::optional<uint8_t> background_color;
+                std::optional<uint8_t> foreground_color = 1;
+                auto bitmap = Bitmap(image, background_color, foreground_color);
+                bitmap.save(argv[3]);
                 break;
             }
         }

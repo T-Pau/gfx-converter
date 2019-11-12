@@ -1,4 +1,5 @@
 SET(SOURCES
+    Bitmap.cc
     Charset.cc
     Exception.cc
     Image.cc

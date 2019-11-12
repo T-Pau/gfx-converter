@@ -35,6 +35,8 @@
 #ifndef HAD_IMAGE_H
 #define HAD_IMAGE_H
 
+#include <optional>
+
 #include "Matrix.h"
 #include "Palette.h"
 
@@ -51,7 +53,7 @@ public:
     uint32_t get_rgb(size_t x, size_t y);
     void set_rgb(size_t x, size_t y, uint32_t color);
     
-    uint8_t get_byte(size_t x, size_t y, uint8_t background_color, uint8_t *foreground_color);
+    uint8_t get_byte(size_t x, size_t y, std::optional<uint8_t>& background_color, std::optional<uint8_t>& foreground_color);
     
 private:
     Matrix pixels;

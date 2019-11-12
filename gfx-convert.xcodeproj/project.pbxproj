@@ -11,6 +11,7 @@
 		4B7E78FF23797BD500C05830 /* Exception.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B7E78FD23797BD500C05830 /* Exception.cc */; };
 		4B7E790223799D6B00C05830 /* SpriteSheet.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B7E790023799D6B00C05830 /* SpriteSheet.cc */; };
 		4B7E79052379A20D00C05830 /* Image.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B7E79032379A20D00C05830 /* Image.cc */; };
+		4B7E7908237A9E2D00C05830 /* Bitmap.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B7E7906237A9E2D00C05830 /* Bitmap.cc */; };
 		4BBEBABD2376FD9B00E6BD4E /* Charset.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BBEBABB2376FD9B00E6BD4E /* Charset.cc */; };
 		4BBEBACF23785E0800E6BD4E /* libpng16.16.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BBEBACE23785E0800E6BD4E /* libpng16.16.dylib */; };
 		4BFC8B1E2376B5CA0061BFEA /* main.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BFC8B1D2376B5CA0061BFEA /* main.cc */; };
@@ -41,6 +42,8 @@
 		4B7E790123799D6B00C05830 /* SpriteSheet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpriteSheet.h; sourceTree = "<group>"; };
 		4B7E79032379A20D00C05830 /* Image.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Image.cc; sourceTree = "<group>"; };
 		4B7E79042379A20D00C05830 /* Image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Image.h; sourceTree = "<group>"; };
+		4B7E7906237A9E2D00C05830 /* Bitmap.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Bitmap.cc; sourceTree = "<group>"; };
+		4B7E7907237A9E2D00C05830 /* Bitmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Bitmap.h; sourceTree = "<group>"; };
 		4BBEBABB2376FD9B00E6BD4E /* Charset.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Charset.cc; sourceTree = "<group>"; };
 		4BBEBABC2376FD9B00E6BD4E /* Charset.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Charset.h; sourceTree = "<group>"; };
 		4BBEBAC5237825D700E6BD4E /* INSTALL.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = INSTALL.md; sourceTree = "<group>"; };
@@ -129,6 +132,8 @@
 		4BFC8B1C2376B5CA0061BFEA /* gfx-convert */ = {
 			isa = PBXGroup;
 			children = (
+				4B7E7906237A9E2D00C05830 /* Bitmap.cc */,
+				4B7E7907237A9E2D00C05830 /* Bitmap.h */,
 				4BBEBABB2376FD9B00E6BD4E /* Charset.cc */,
 				4BBEBABC2376FD9B00E6BD4E /* Charset.h */,
 				4BBEBACC23784FC100E6BD4E /* CMakeLists.txt */,
@@ -215,6 +220,7 @@
 				4BFC8B2F2376C6630061BFEA /* utils.cc in Sources */,
 				4BBEBABD2376FD9B00E6BD4E /* Charset.cc in Sources */,
 				4B7E790223799D6B00C05830 /* SpriteSheet.cc in Sources */,
+				4B7E7908237A9E2D00C05830 /* Bitmap.cc in Sources */,
 				4B7E78FC23796F1E00C05830 /* TextScreen.cc in Sources */,
 				4BFC8B1E2376B5CA0061BFEA /* main.cc in Sources */,
 				4B7E78FF23797BD500C05830 /* Exception.cc in Sources */,

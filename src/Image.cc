@@ -46,7 +46,7 @@ void Image::set_rgb(size_t x, size_t y, uint32_t color) {
     pixels.set(x, y, palette->lookup(color));
 }
 
-uint8_t Image::get_byte(size_t x, size_t y, uint8_t background_color, uint8_t *foreground_color) {
+uint8_t Image::get_byte(size_t x, size_t y, std::optional<uint8_t>& background_color, std::optional<uint8_t>& foreground_color) {
     if (x % 8 != 0) {
         throw Exception("x not multiple of 8");
     }
@@ -56,16 +56,22 @@ uint8_t Image::get_byte(size_t x, size_t y, uint8_t background_color, uint8_t *f
         auto pixel = get(x + bit, y);
         
         byte <<= 1;
-        if (pixel != background_color && pixel != palette->transparent_index) {
-            if (pixel != *foreground_color) {
-                if (*foreground_color == background_color) {
-                    *foreground_color = pixel;
-                }
-                else {
-                    throw Exception("color clash").set_position(x + bit, y);
-                }
-            }
+        if (pixel == palette->transparent_index || (background_color && pixel == background_color)) {
+        }
+        else if (foreground_color && pixel == foreground_color) {
             byte |= 1;
+        }
+        else {
+            if (!background_color) {
+                background_color = pixel;
+            }
+            else if (!foreground_color) {
+                foreground_color = pixel;
+                byte |= 1;
+            }
+            else  {
+                throw Exception("color clash").set_position(x + bit, y);
+            }
         }
     }
     

@@ -1,5 +1,5 @@
 /*
-  SpriteSheet.cc -- two dimensional array of sprites
+  Bitmap.h -- bitmap with color information
   Copyright (C) 2019 Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
@@ -32,36 +32,29 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "SpriteSheet.h"
+#ifndef HAD_BITMAP_H
+#define HAD_BITMAP_H
 
-#include "Exception.h"
-#include "utils.h"
+#include "Image.h"
+#include "Matrix.h"
 
-SpriteSheet::SpriteSheet(size_t r, size_t c) : rows(r), columns(c), data(std::make_unique<unsigned char[]>(rows * columns * 64)) { }
+class Bitmap {
+public:
+    Bitmap(size_t width, size_t height);
+    Bitmap(std::shared_ptr<Image> image, std::optional<uint8_t> background_color, std::optional<uint8_t> foreground_color);
+    
+    size_t get_width() const { return width; }
+    size_t get_height() const { return height; }
+    
+    void set_tile(size_t x, size_t y, const uint8_t tile[], uint8_t foreground_color, uint8_t background_color);
+    
+    void save(const std::string file_name_prefix);
+    
+private:
+    size_t width;
+    size_t height;
+    std::unique_ptr<uint8_t[]> bitmap;
+    Matrix screen;
+};
 
-SpriteSheet::SpriteSheet(std::shared_ptr<Image> image, uint8_t background_color) : rows(image->get_height() / 21), columns(image->get_width() / 24), data(std::make_unique<unsigned char[]>(rows * columns * 64)) {
-    if (image->get_width() % 24 != 0 || image->get_height() % 21 != 0) {
-        throw Exception("image dimensions not multiple of sprite size");
-    }
-
-    auto bg_color = std::make_optional(background_color);
-    for (size_t sheet_y = 0; sheet_y < rows; sheet_y++) {
-        for (size_t sheet_x = 0; sheet_x < columns; sheet_x++) {
-            std::optional<uint8_t> foreground_color;
-
-            size_t offset = (sheet_y * columns + sheet_x) * 64;
-            for (size_t sprite_y = 0; sprite_y < 21; sprite_y++) {
-                for (size_t byte_x = 0; byte_x < 3; byte_x++) {
-                    auto byte = image->get_byte(sheet_x * 24 + byte_x * 8, sheet_y * 21 + sprite_y, bg_color, foreground_color);
-                    data[offset + sprite_y * 3 + byte_x] = byte;
-                }
-            }
-            
-            // TODO: store foreground color
-        }
-    }
-}
-
-void SpriteSheet::save(const std::string file_name) const {
-    save_file(file_name, data.get(), rows * columns * 64);
-}
+#endif // HAD_BITMAP_H
