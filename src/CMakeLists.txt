@@ -5,11 +5,15 @@ SET(SOURCES
     Image.cc
     Matrix.cc
     main.cc
+    Noter.cc
     Palette.cc
     read_png.cc
+    read_printfox.cc
+    read_raw.cc
     SpriteSheet.cc
     TextScreen.cc
     utils.cc
+    write_png.cc
 )
 
 ADD_EXECUTABLE(gfx-convert ${SOURCES})

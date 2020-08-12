@@ -1,6 +1,6 @@
 /*
-  read_png.h -- read PNG image into Matrix for given Palette
-  Copyright (C) 2019 Dieter Baron
+  read.h -- Header File for Read Functions
+  Copyright (C) 2019-20 Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
   for 8-bit systems.
@@ -32,8 +32,8 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef HAD_READ_PNG
-#define HAD_READ_PNG
+#ifndef HAD_READ
+#define HAD_READ
 
 #include <string>
 
@@ -41,5 +41,7 @@
 #include "Palette.h"
 
 std::shared_ptr<Image> image_read_png(const std::string file_name, std::shared_ptr<Palette> palette);
+std::shared_ptr<Image> image_read_printfox(const std::string file_name, std::shared_ptr<Palette> palette);
+std::shared_ptr<Image> image_read_raw(const std::string file_name, std::shared_ptr<Palette> palette, size_t width, size_t height);
 
-#endif // HAD_READ_PNG
+#endif // HAD_READ

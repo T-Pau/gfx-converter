@@ -1,5 +1,5 @@
 /*
-  Exception.h -- basic exception
+  write_png.h -- write Image with given Palette to PNG image
   Copyright (C) 2019 Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
@@ -32,28 +32,14 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef HAD_EXCEPTION_H
-#define HAD_EXCEPTION_H
+#ifndef HAD_WRITE_PNG
+#define HAD_WRITE_PNG
 
-#include <exception>
 #include <string>
 
-class Exception : std::exception {
-public:
-    Exception(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
-    
-    virtual const char* what() const throw();
-    
-    Exception append(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
-    Exception append_system_error(int code = -1);
-    Exception set_position(size_t x, size_t y);
-    Exception offset_position(size_t x_offset, size_t y_offset);
+#include "Image.h"
+#include "Palette.h"
 
-private:
-    std::string message;
-    bool position_set;
-    size_t x;
-    size_t y;
-};
+void image_write_png(const std::string file_name, std::shared_ptr<Image> image);
 
-#endif // HAD_EXCEPTION_H
+#endif // HAD_WRITE_PNG

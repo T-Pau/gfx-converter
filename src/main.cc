@@ -1,6 +1,6 @@
 /*
   main.cc -- main program
-  Copyright (C) 2019 Dieter Baron
+  Copyright (C) 2020 Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
   for 8-bit systems.
@@ -36,14 +36,19 @@
 
 #include "Bitmap.h"
 #include "Exception.h"
-#include "read_png.h"
+#include "read.h"
+#include "write_png.h"
+#include "Noter.h"
 #include "TextScreen.h"
 #include "SpriteSheet.h"
 
 enum Format {
     FORMAT_BITMAP,
     FORMAT_TEXT,
-    FORMAT_SPRITES
+    FORMAT_SPRITES,
+    FORMAT_RAW,
+    FORMAT_NOTER,
+    FORMAT_PRINTFOX
 };
 
 int main(int argc, const char * argv[]) {
@@ -64,12 +69,33 @@ int main(int argc, const char * argv[]) {
         else if (strcmp(argv[1], "text") == 0) {
             format = FORMAT_TEXT;
         }
+        else if (strcmp(argv[1], "raw") == 0) {
+            format = FORMAT_RAW;
+        }
+        else if (strcmp(argv[1], "noter") == 0) {
+            format = FORMAT_NOTER;
+        }
+        else if (strcmp(argv[1], "printfox") == 0) {
+            format = FORMAT_PRINTFOX;
+        }
         else {
             throw Exception("unknown format '%s'", argv[1]);
         }
 
+        std::shared_ptr<Image> image;
         
-        auto image = image_read_png(argv[2], std::make_shared<Palette>(Palette::c64_colodore));
+        switch (format) {
+        case FORMAT_PRINTFOX:
+            image = image_read_printfox(argv[2], std::make_shared<Palette>(Palette::c64_colodore));
+            break;
+            
+        case FORMAT_RAW:
+            image = image_read_raw(argv[2], std::make_shared<Palette>(Palette::c64_colodore), 384, 272);
+            break;
+
+        default:
+            image = image_read_png(argv[2], std::make_shared<Palette>(Palette::c64_colodore));
+        }
     
         switch (format) {
             case FORMAT_TEXT: {
@@ -86,8 +112,22 @@ int main(int argc, const char * argv[]) {
                 
             case FORMAT_BITMAP: {
                 std::optional<uint8_t> background_color;
-                std::optional<uint8_t> foreground_color = 1;
+                std::optional<uint8_t> foreground_color;
                 auto bitmap = Bitmap(image, background_color, foreground_color);
+                bitmap.save(argv[3]);
+                break;
+            }
+                
+            case FORMAT_RAW:
+            case FORMAT_PRINTFOX: {
+                image_write_png(argv[3], image);
+                break;
+            }
+                
+            case FORMAT_NOTER: {
+                std::optional<uint8_t> background_color = 255; // transparent
+                std::optional<uint8_t> foreground_color;
+                auto bitmap = Noter(image, background_color, foreground_color);
                 bitmap.save(argv[3]);
                 break;
             }

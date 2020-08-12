@@ -1,5 +1,5 @@
 /*
-  Palette.h -- color palette
+  read_png.cc -- read PNG image into Matrix for given Palette
   Copyright (C) 2019 Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
@@ -32,73 +32,56 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "write_png.h"
+
+#include <png.h>
+
 #include "Exception.h"
-#include "Palette.h"
+#include "utils.h"
 
-Palette Palette::c64_colodore = Palette({
-    0x000000,
-    0xFFFFFF,
-    0x813338,
-    0x75CEC8,
-    0x8E3C97,
-    0x56AC4D,
-    0x2E2C9B,
-    0xEDF171,
-    0x8E5029,
-    0x553800,
-    0xC46C71,
-    0x4A4A4A,
-    0x7B7B7B,
-    0xA9FF9F,
-    0x706DEB,
-    0xB2B2B2
-});
 
-Palette Palette::zx_spectrum = Palette({
-    0x000000,
-    0x0022c7,
-    0x002bfb,
-    0xd62816,
-    0xff331c,
-    0xd433c7,
-    0xff40fc,
-    0x00c525,
-    0x000000,
-    0x00f92f,
-    0x00c7c9,
-    0x00fbfe,
-    0xccc82a,
-    0xfffc36,
-    0xcacaca,
-    0xffffff
-});
+void image_write_png(const std::string file_name, std::shared_ptr<Image> image) {
+    auto fp = make_shared_file(file_name, "wb");
+    
+    auto png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
-Palette::Palette(uint8_t size, uint8_t transparent_index_) : transparent_index(transparent_index_), entries(size) { }
+    if (png_ptr == NULL) {
+        throw Exception("can't create PNG writer");
+    }
 
-Palette::Palette(const std::vector<uint32_t> entries_, uint8_t transparent_index_) : transparent_index(transparent_index_), entries(entries_) { }
+    auto info_ptr = png_create_info_struct(png_ptr);
+    
+    if (info_ptr == NULL) {
+        throw Exception("can't create PNG info");
+    }
 
-uint8_t Palette::lookup(uint32_t color) const {
-    for (uint8_t index = 0; index < entries.size(); index++) {
-        if (entries[index] == color) {
-            return index;
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        throw Exception("can't write PNG image '%s'", file_name.c_str()); // TODO: error details
+    }
+
+    png_init_io(png_ptr, fp.get());
+
+    png_set_IHDR(png_ptr, info_ptr, static_cast<png_uint_32>(image->get_width()), static_cast<png_uint_32>(image->get_height()), 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    png_write_info(png_ptr, info_ptr);
+
+    uint8_t buffer[image->get_width() * image->get_height() * 3];
+    uint8_t *rows[image->get_height()];
+    
+    for (size_t i = 0; i < image->get_height(); i++) {
+        rows[i] = buffer + i * image->get_width() * 3;
+    }
+    
+    for (size_t y = 0; y < image->get_height(); y++) {
+        for (size_t x = 0; x < image->get_width(); x++) {
+            auto rgb = image->get_rgb(x, y);
+            rows[y][x * 3] = rgb >> 16;
+            rows[y][x * 3 + 1] = (rgb >> 8) & 0xff;
+            rows[y][x * 3 + 2] = rgb & 0xff;
         }
     }
     
-    throw Exception("invalid color $%06x", color);
-}
+    png_write_image(png_ptr, rows);
 
-uint32_t Palette::get(uint8_t index) const {
-    if (index > entries.size()) {
-        throw Exception("palette index out of range");
-    }
-    
-    return entries[index];
-}
-
-uint32_t& Palette::operator [](uint8_t index) {
-    if (index > entries.size()) {
-        throw Exception("palette index out of range");
-    }
-        
-    return entries[index];
+    png_write_end(png_ptr, NULL);
 }

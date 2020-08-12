@@ -1,6 +1,6 @@
 /*
-  Palette.h -- color palette
-  Copyright (C) 2019 Dieter Baron
+  Noter.cc -- Modern Noter charset
+  Copyright (C) 2020 Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
   for 8-bit systems.
@@ -32,73 +32,42 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Noter.h"
+
 #include "Exception.h"
-#include "Palette.h"
+#include "utils.h"
 
-Palette Palette::c64_colodore = Palette({
-    0x000000,
-    0xFFFFFF,
-    0x813338,
-    0x75CEC8,
-    0x8E3C97,
-    0x56AC4D,
-    0x2E2C9B,
-    0xEDF171,
-    0x8E5029,
-    0x553800,
-    0xC46C71,
-    0x4A4A4A,
-    0x7B7B7B,
-    0xA9FF9F,
-    0x706DEB,
-    0xB2B2B2
-});
+Noter::Noter(size_t w, size_t h) : width(w), height(h), bitmap(std::make_unique<uint8_t[]>(width * height * 16)) {
+}
 
-Palette Palette::zx_spectrum = Palette({
-    0x000000,
-    0x0022c7,
-    0x002bfb,
-    0xd62816,
-    0xff331c,
-    0xd433c7,
-    0xff40fc,
-    0x00c525,
-    0x000000,
-    0x00f92f,
-    0x00c7c9,
-    0x00fbfe,
-    0xccc82a,
-    0xfffc36,
-    0xcacaca,
-    0xffffff
-});
-
-Palette::Palette(uint8_t size, uint8_t transparent_index_) : transparent_index(transparent_index_), entries(size) { }
-
-Palette::Palette(const std::vector<uint32_t> entries_, uint8_t transparent_index_) : transparent_index(transparent_index_), entries(entries_) { }
-
-uint8_t Palette::lookup(uint32_t color) const {
-    for (uint8_t index = 0; index < entries.size(); index++) {
-        if (entries[index] == color) {
-            return index;
+Noter::Noter(std::shared_ptr<Image> image, std::optional<uint8_t> background_color, std::optional<uint8_t> foreground_color) : width(image->get_width() / 8), height(image->get_height() / 16), bitmap(std::make_unique<uint8_t[]>(width * height * 16)) {
+    if (image->get_width() % 8 != 0 || image->get_height() % 16 != 0) {
+        throw Exception("image dimensions not multiple of character size");
+    }
+    
+    for (size_t screen_y = 0; screen_y < height; screen_y++) {
+        for (size_t screen_x = 0; screen_x < width; screen_x++) {
+            std::optional<uint8_t> bg_color = background_color;
+            std::optional<uint8_t> fg_color = foreground_color;
+            
+            uint8_t tile[16];
+            
+            for (size_t tile_y = 0; tile_y < 16; tile_y++) {
+                tile[tile_y] = image->get_byte(screen_x * 8, screen_y * 16 + tile_y, bg_color, fg_color);
+            }
+            
+            set_tile(screen_x, screen_y, tile, bg_color ? *bg_color : 0, fg_color ? *fg_color : 0);
         }
     }
-    
-    throw Exception("invalid color $%06x", color);
 }
 
-uint32_t Palette::get(uint8_t index) const {
-    if (index > entries.size()) {
-        throw Exception("palette index out of range");
-    }
-    
-    return entries[index];
+
+void Noter::set_tile(size_t x, size_t y, const uint8_t tile[], uint8_t foreground_color, uint8_t background_color) {
+    memcpy(bitmap.get() + (y * width + x) * 16, tile, 16);
 }
 
-uint32_t& Palette::operator [](uint8_t index) {
-    if (index > entries.size()) {
-        throw Exception("palette index out of range");
-    }
-        
-    return entries[index];
+
+
+void Noter::save(const std::string file_name_prefix) {
+    save_file(file_name_prefix + ".bin", bitmap.get(), width * height * 16);
 }

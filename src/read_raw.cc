@@ -1,5 +1,5 @@
 /*
-  Exception.h -- basic exception
+  read_raw.cc -- read raw image into Matrix for given Palette
   Copyright (C) 2019 Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
@@ -32,28 +32,34 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef HAD_EXCEPTION_H
-#define HAD_EXCEPTION_H
+#include "read.h"
 
-#include <exception>
-#include <string>
+#include <cstring>
 
-class Exception : std::exception {
-public:
-    Exception(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+#include <string.h>
+
+#include <png.h>
+
+#include "Exception.h"
+#include "utils.h"
+
+
+std::shared_ptr<Image> image_read_raw(const std::string file_name, std::shared_ptr<Palette> palette, size_t width, size_t height) {
+    auto fp = make_shared_file(file_name, "rb");
     
-    virtual const char* what() const throw();
+    auto image = std::make_shared<Image>(width, height, palette);
+
+    uint8_t buffer[width * height];
+
+    if (fread(buffer, width * height, 1, fp.get()) != 1) {
+        throw Exception("can't read image data").append_system_error();
+    }
     
-    Exception append(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
-    Exception append_system_error(int code = -1);
-    Exception set_position(size_t x, size_t y);
-    Exception offset_position(size_t x_offset, size_t y_offset);
-
-private:
-    std::string message;
-    bool position_set;
-    size_t x;
-    size_t y;
-};
-
-#endif // HAD_EXCEPTION_H
+    for (size_t y = 0; y < height; y++) {
+        for (size_t x = 0; x < width; x++) {
+            image->set(x, y, buffer[y * width + x]);
+        }
+    }
+    
+    return image;
+}

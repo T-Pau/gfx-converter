@@ -32,7 +32,7 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "read_png.h"
+#include "read.h"
 
 #include <cstring>
 

@@ -53,6 +53,7 @@ public:
     uint32_t& operator [](uint8_t index);
 
     static Palette c64_colodore;
+    static Palette zx_spectrum;
 
     uint8_t transparent_index;
 

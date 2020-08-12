@@ -1,6 +1,6 @@
 /*
-  Exception.h -- basic exception
-  Copyright (C) 2019 Dieter Baron
+  Noter.h -- Modern Noter charset
+  Copyright (C) 2020 Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
   for 8-bit systems.
@@ -32,28 +32,28 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef HAD_EXCEPTION_H
-#define HAD_EXCEPTION_H
+#ifndef HAD_NOTER_H
+#define HAD_NOTER_H
 
-#include <exception>
-#include <string>
+#include "Image.h"
+#include "Matrix.h"
 
-class Exception : std::exception {
+class Noter {
 public:
-    Exception(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+    Noter(size_t width, size_t height);
+    Noter(std::shared_ptr<Image> image, std::optional<uint8_t> background_color, std::optional<uint8_t> foreground_color);
     
-    virtual const char* what() const throw();
+    size_t get_width() const { return width; }
+    size_t get_height() const { return height; }
     
-    Exception append(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
-    Exception append_system_error(int code = -1);
-    Exception set_position(size_t x, size_t y);
-    Exception offset_position(size_t x_offset, size_t y_offset);
-
+    void set_tile(size_t x, size_t y, const uint8_t tile[], uint8_t foreground_color, uint8_t background_color);
+    
+    void save(const std::string file_name_prefix);
+    
 private:
-    std::string message;
-    bool position_set;
-    size_t x;
-    size_t y;
+    size_t width;
+    size_t height;
+    std::unique_ptr<uint8_t[]> bitmap;
 };
 
-#endif // HAD_EXCEPTION_H
+#endif // HAD_NOTER_H
