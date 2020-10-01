@@ -39,6 +39,7 @@
 #include <memory>
 #include <string>
 #include <system_error>
+#include <stdarg.h>
 
 std::shared_ptr<std::FILE> make_shared_file(const std::string file_name, const std::string flags);
 

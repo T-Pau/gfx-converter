@@ -35,6 +35,7 @@
 #ifndef HAD_EXCEPTION_H
 #define HAD_EXCEPTION_H
 
+#include <cstring>
 #include <exception>
 #include <string>
 
