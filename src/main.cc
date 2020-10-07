@@ -41,11 +41,13 @@
 #include "Noter.h"
 #include "TextScreen.h"
 #include "SpriteSheet.h"
+#include "utils.h"
 
 enum Format {
     FORMAT_BITMAP,
     FORMAT_TEXT,
     FORMAT_SPRITES,
+    FORMAT_CHARSET,
     FORMAT_RAW,
     FORMAT_NOTER,
     FORMAT_PRINTFOX
@@ -62,6 +64,9 @@ int main(int argc, const char * argv[]) {
         
         if (strcmp(argv[1], "bitmap") == 0) {
             format = FORMAT_BITMAP;
+        }
+        else if (strcmp(argv[1], "charset") == 0) {
+            format = FORMAT_CHARSET;
         }
         else if (strcmp(argv[1], "sprites") == 0) {
             format = FORMAT_SPRITES;
@@ -107,6 +112,14 @@ int main(int argc, const char * argv[]) {
             case FORMAT_SPRITES: {
                 auto sprites = SpriteSheet(image, 254);
                 sprites.save(argv[3]);
+                break;
+            }
+                
+            case FORMAT_CHARSET: {
+                std::optional<uint8_t> background_color = 256; // transparent
+                std::optional<uint8_t> foreground_color;
+                auto bitmap = Bitmap(image, background_color, foreground_color);
+                save_file(std::string(argv[3]) + ".bin", bitmap.bitmap.get(), image->get_width() * image->get_height() * 8);
                 break;
             }
                 
