@@ -50,12 +50,14 @@ public:
     
     void save(const std::string file_name_prefix);
     
-    std::unique_ptr<uint8_t[]> bitmap;
-    Matrix screen;
 
 private:
     size_t width;
     size_t height;
+
+public:
+    std::unique_ptr<uint8_t[]> bitmap;
+    Matrix screen;
 };
 
 #endif // HAD_BITMAP_H
