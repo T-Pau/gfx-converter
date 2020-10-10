@@ -119,7 +119,7 @@ int main(int argc, const char * argv[]) {
                 std::optional<uint8_t> background_color = 256; // transparent
                 std::optional<uint8_t> foreground_color;
                 auto bitmap = Bitmap(image, background_color, foreground_color);
-                save_file(std::string(argv[3]) + ".bin", bitmap.bitmap.get(), image->get_width() * image->get_height() * 8);
+                save_file(std::string(argv[3]), bitmap.bitmap.get(), image->get_width() * image->get_height() / 8);
                 break;
             }
                 
