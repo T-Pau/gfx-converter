@@ -56,16 +56,16 @@ uint8_t Image::get_byte(size_t x, size_t y, std::optional<uint8_t>& background_c
         auto pixel = get(x + bit, y);
         
         byte <<= 1;
-        if (pixel == palette->transparent_index || (background_color && pixel == background_color)) {
+        if (pixel == palette->transparent_index || (background_color.has_value() && pixel == background_color)) {
         }
-        else if (foreground_color && pixel == foreground_color) {
+        else if (foreground_color.has_value() && pixel == foreground_color) {
             byte |= 1;
         }
         else {
-            if (!background_color) {
+            if (!background_color.has_value()) {
                 background_color = pixel;
             }
-            else if (!foreground_color) {
+            else if (!foreground_color.has_value()) {
                 foreground_color = pixel;
                 byte |= 1;
             }
