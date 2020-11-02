@@ -44,11 +44,31 @@ Charset::Charset() : nchars(0) {
     
 }
 
-uint8_t Charset::add(const uint8_t tile[]) {
-    for (size_t index = 0; index < nchars; index++) {
-        if (memcmp(tile, data + index * 8, 8) == 0) {
-            return index;
+Charset::Charset(const uint8_t data_[]) {
+    memcpy(data, data_, sizeof(data));
+    
+    auto had_empty = false;
+    
+    for (auto i = 0; i < 256; i++) {
+        auto c = reinterpret_cast<const uint64_t *>(data)[i];
+        if (c != 0 || !had_empty) {
+            if (chars.find(c) == chars.end()) {
+                chars[c] = i;
+            }
+            nchars = i + 1;
+            if (c == 0) {
+                had_empty = true;
+            }
         }
+    }
+}
+
+uint8_t Charset::add(const uint8_t tile[]) {
+    auto c = *reinterpret_cast<const uint64_t *>(tile);
+    auto it = chars.find(c);
+    
+    if (it != chars.end()) {
+        return it->second;
     }
     
     if (nchars == 256) {
@@ -57,9 +77,22 @@ uint8_t Charset::add(const uint8_t tile[]) {
     
     auto index = nchars;
     memcpy(data + index * 8, tile, 8);
+    chars[c] = index;
     nchars++;
     return index;
 }
+
+std::optional<uint8_t> Charset::find(const uint8_t *tile) {
+    auto c = *reinterpret_cast<const uint64_t *>(tile);
+    auto it = chars.find(c);
+    
+    if (it != chars.end()) {
+        return it->second;
+    }
+
+    return std::optional<uint8_t>();
+}
+
 
 void Charset::save(const std::string file_name, bool full) const {
     save_file(file_name, data, (full ? 256 : nchars) * 8);

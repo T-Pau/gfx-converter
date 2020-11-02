@@ -37,18 +37,23 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 
 class Charset {
 public:
     Charset();
+    Charset(const uint8_t data_[]);
     
     uint8_t add(const uint8_t *tile);
+    std::optional<uint8_t> find(const uint8_t *tile);
     
     void save(const std::string file_name, bool full = false) const;
     
 private:
     uint8_t data[256 * 8];
     size_t nchars;
+    
+    std::unordered_map<uint64_t, uint8_t> chars;
 };
 
 #endif // HAD_CHARSET_H

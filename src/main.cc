@@ -48,13 +48,14 @@ enum Format {
     FORMAT_TEXT,
     FORMAT_SPRITES,
     FORMAT_CHARSET,
+    FORMAT_SCREEN,
     FORMAT_RAW,
     FORMAT_NOTER,
     FORMAT_PRINTFOX
 };
 
 int main(int argc, const char * argv[]) {
-    if (argc != 4) {
+    if (argc < 4) {
         std::cerr << "Usage: " << argv[0] << " format image.png filename-prefix\n";
         exit(1);
     }
@@ -82,6 +83,9 @@ int main(int argc, const char * argv[]) {
         }
         else if (strcmp(argv[1], "printfox") == 0) {
             format = FORMAT_PRINTFOX;
+        }
+        else if (strcmp(argv[1], "screen") == 0) {
+            format = FORMAT_SCREEN;
         }
         else {
             throw Exception("unknown format '%s'", argv[1]);
@@ -143,6 +147,43 @@ int main(int argc, const char * argv[]) {
                 auto bitmap = Noter(image, background_color, foreground_color);
                 bitmap.save(argv[3]);
                 break;
+            }
+            
+            case FORMAT_SCREEN: {
+                if (argc != 5) {
+                    std::cerr << "Usage: " << argv[0] << " screen image.png charset.bin filename\n";
+                    exit(1);
+                }
+                uint8_t charset_data[8*256];
+                {
+                    auto f = make_shared_file(argv[3], "rb");
+                    if (fread(charset_data, sizeof(charset_data), 1, f.get()) != 1) {
+                        throw Exception("can't read charset '%s'", argv[3]).append_system_error();
+                    }
+                }
+                auto charset = Charset(charset_data);
+                
+                std::optional<uint8_t> background_color = 255; // transparent
+                std::optional<uint8_t> foreground_color;
+                auto bitmap = Bitmap(image, background_color, foreground_color);
+                uint8_t screen[bitmap.get_width() * bitmap.get_height()];
+                for (auto y = 0; y < bitmap.get_height(); y++) {
+                    for (auto x = 0; x < bitmap.get_width(); x++) {
+                        auto index = charset.find(bitmap.bitmap.get() + (y * bitmap.get_width() + x) * 8);
+                        if (index.has_value()) {
+                            screen[y * bitmap.get_width() + x] = index.value();
+                        }
+                        else {
+                            throw Exception("unknown char").set_position(x, y);
+                        }
+                    }
+                }
+                {
+                    auto f = make_shared_file(argv[4], "wb");
+                    if (fwrite(screen, bitmap.get_width() * bitmap.get_height(), 1, f.get()) != 1) {
+                        throw Exception("can't write screen '%s'", argv[4]).append_system_error();
+                    }
+                }
             }
         }
     }
