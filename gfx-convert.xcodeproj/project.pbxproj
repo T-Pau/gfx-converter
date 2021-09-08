@@ -10,6 +10,7 @@
 		4B36CBCF23A50039008F99F3 /* write_png.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B36CBCD23A50039008F99F3 /* write_png.cc */; };
 		4B36CBD223A50E2F008F99F3 /* read_raw.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B36CBD023A50E2F008F99F3 /* read_raw.cc */; };
 		4B4A69B224E304BD00F6D9D6 /* read_printfox.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B4A69B124E304BD00F6D9D6 /* read_printfox.cc */; };
+		4B78885F26E96BA1005F8901 /* read_raw_charset.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B78885E26E96BA1005F8901 /* read_raw_charset.cc */; };
 		4B7E78FC23796F1E00C05830 /* TextScreen.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B7E78FA23796F1E00C05830 /* TextScreen.cc */; };
 		4B7E78FF23797BD500C05830 /* Exception.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B7E78FD23797BD500C05830 /* Exception.cc */; };
 		4B7E790223799D6B00C05830 /* SpriteSheet.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B7E790023799D6B00C05830 /* SpriteSheet.cc */; };
@@ -42,6 +43,7 @@
 		4B36CBCE23A50039008F99F3 /* write_png.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = write_png.h; sourceTree = "<group>"; };
 		4B36CBD023A50E2F008F99F3 /* read_raw.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = read_raw.cc; sourceTree = "<group>"; };
 		4B4A69B124E304BD00F6D9D6 /* read_printfox.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = read_printfox.cc; sourceTree = "<group>"; };
+		4B78885E26E96BA1005F8901 /* read_raw_charset.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = read_raw_charset.cc; sourceTree = "<group>"; };
 		4B7E78FA23796F1E00C05830 /* TextScreen.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextScreen.cc; sourceTree = "<group>"; };
 		4B7E78FB23796F1E00C05830 /* TextScreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextScreen.h; sourceTree = "<group>"; };
 		4B7E78FD23797BD500C05830 /* Exception.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Exception.cc; sourceTree = "<group>"; };
@@ -160,6 +162,7 @@
 				4BFC8B2B2376BB4C0061BFEA /* Palette.h */,
 				4BFC8B272376B9770061BFEA /* read_png.cc */,
 				4B4A69B124E304BD00F6D9D6 /* read_printfox.cc */,
+				4B78885E26E96BA1005F8901 /* read_raw_charset.cc */,
 				4B36CBD023A50E2F008F99F3 /* read_raw.cc */,
 				4BFC8B282376B9770061BFEA /* read.h */,
 				4B7E790023799D6B00C05830 /* SpriteSheet.cc */,
@@ -237,6 +240,7 @@
 				4BFC8B2F2376C6630061BFEA /* utils.cc in Sources */,
 				4BBEBABD2376FD9B00E6BD4E /* Charset.cc in Sources */,
 				4B7E790223799D6B00C05830 /* SpriteSheet.cc in Sources */,
+				4B78885F26E96BA1005F8901 /* read_raw_charset.cc in Sources */,
 				4B7E7908237A9E2D00C05830 /* Bitmap.cc in Sources */,
 				4B7E78FC23796F1E00C05830 /* TextScreen.cc in Sources */,
 				4BFC8B1E2376B5CA0061BFEA /* main.cc in Sources */,

@@ -51,7 +51,8 @@ enum Format {
     FORMAT_SCREEN,
     FORMAT_RAW,
     FORMAT_NOTER,
-    FORMAT_PRINTFOX
+    FORMAT_PRINTFOX,
+    FORMAT_RAW_CHARSET
 };
 
 int main(int argc, const char * argv[]) {
@@ -78,6 +79,9 @@ int main(int argc, const char * argv[]) {
         else if (strcmp(argv[1], "raw") == 0) {
             format = FORMAT_RAW;
         }
+        else if (strcmp(argv[1], "raw-charset") == 0) {
+            format = FORMAT_RAW_CHARSET;
+        }
         else if (strcmp(argv[1], "noter") == 0) {
             format = FORMAT_NOTER;
         }
@@ -102,6 +106,10 @@ int main(int argc, const char * argv[]) {
             image = image_read_raw(argv[2], std::make_shared<Palette>(Palette::c64_colodore), 384, 272);
             break;
 
+        case FORMAT_RAW_CHARSET:
+            image = image_read_raw_charset(argv[2]);
+            break;
+                
         default:
             image = image_read_png(argv[2], std::make_shared<Palette>(Palette::c64_colodore));
         }
@@ -136,6 +144,7 @@ int main(int argc, const char * argv[]) {
             }
                 
             case FORMAT_RAW:
+            case FORMAT_RAW_CHARSET:
             case FORMAT_PRINTFOX: {
                 image_write_png(argv[3], image);
                 break;

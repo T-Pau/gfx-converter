@@ -43,5 +43,6 @@
 std::shared_ptr<Image> image_read_png(const std::string file_name, std::shared_ptr<Palette> palette);
 std::shared_ptr<Image> image_read_printfox(const std::string file_name, std::shared_ptr<Palette> palette);
 std::shared_ptr<Image> image_read_raw(const std::string file_name, std::shared_ptr<Palette> palette, size_t width, size_t height);
+std::shared_ptr<Image> image_read_raw_charset(const std::string file_name);
 
 #endif // HAD_READ
