@@ -36,14 +36,19 @@
 #define HAD_UTILS_H
 
 #include <cstdio>
+#include <cstdarg>
 #include <memory>
 #include <string>
 #include <system_error>
-#include <stdarg.h>
+#include <vector>
 
-std::shared_ptr<std::FILE> make_shared_file(const std::string file_name, const std::string flags);
+std::shared_ptr<std::FILE> make_shared_file(const std::string& file_name, const std::string& flags);
 
-void save_file(const std::string file_name, const uint8_t *data, size_t length);
+std::vector<uint8_t> load_file(const std::string& file_name);
+
+void save_file(const std::string& file_name, const uint8_t* data, size_t length);
+void save_file(const std::string& file_name, std::vector<uint8_t>& data);
+void save_file(const std::string& file_name, std::vector<const std::vector<uint8_t>*>& data_list);
 
 std::string string_format(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
 std::string string_format_v(const char *format, va_list ap);

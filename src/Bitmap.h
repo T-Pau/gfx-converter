@@ -40,23 +40,29 @@
 
 class Bitmap {
 public:
-    Bitmap(size_t width, size_t height);
-    Bitmap(std::shared_ptr<Image> image, std::optional<uint8_t> background_color, std::optional<uint8_t> foreground_color);
+    enum Layout {
+        C64,
+        SPECTRUM
+    };
+    Bitmap(size_t width, size_t height, Layout layout);
+    Bitmap(const std::shared_ptr<Image>& image, Layout layout, std::optional<uint8_t> background_color, std::optional<uint8_t> foreground_color);
     
-    size_t get_width() const { return width; }
-    size_t get_height() const { return height; }
-    
+    [[nodiscard]] size_t get_width() const { return width; }
+    [[nodiscard]] size_t get_height() const { return height; }
+    [[nodiscard]] Layout get_layout() const { return layout; }
+
     void set_tile(size_t x, size_t y, const uint8_t tile[], uint8_t foreground_color, uint8_t background_color);
     
-    void save(const std::string file_name_prefix);
+    void save(const std::string& file_name_prefix) const;
     
 
 private:
     size_t width;
     size_t height;
+    Layout layout;
 
 public:
-    std::unique_ptr<uint8_t[]> bitmap;
+    std::vector<uint8_t> bitmap;
     Matrix screen;
 };
 

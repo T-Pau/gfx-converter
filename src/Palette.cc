@@ -55,22 +55,22 @@ Palette Palette::c64_colodore = Palette({
 });
 
 Palette Palette::zx_spectrum = Palette({
-    0x000000,
-    0x0022c7,
-    0x002bfb,
-    0xd62816,
-    0xff331c,
-    0xd433c7,
-    0xff40fc,
-    0x00c525,
-    0x000000,
-    0x00f92f,
-    0x00c7c9,
-    0x00fbfe,
-    0xccc82a,
-    0xfffc36,
-    0xcacaca,
-    0xffffff
+    0x000000, // black
+    0x0022c7, // blue
+    0xd62816, // red
+    0xd433c7, // magenta
+    0x00c525, // green
+    0x00c7c9, // cyan
+    0xccc82a, // yellow
+    0xcacaca, // white
+    0x000000, // bright black
+    0x002bfb, // bright blue
+    0xff331c, // bright red
+    0xff40fc, // bright magenta
+    0x00f92f, // bright green
+    0x00fbfe, // bright cyan
+    0xfffc36, // bright yellow
+    0xffffff  // bright white
 });
 
 Palette::Palette(uint8_t size, uint8_t transparent_index_) : transparent_index(transparent_index_), entries(size) { }

@@ -38,22 +38,24 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 class Charset {
 public:
-    Charset();
-    Charset(const uint8_t data_[]);
+    explicit Charset(size_t max_chars = 256);
+    explicit Charset(std::vector<uint8_t> data, size_t max_chars = 256);
+
+    size_t add(const uint8_t *tile);
+    std::optional<size_t> find(const uint8_t *tile);
     
-    uint8_t add(const uint8_t *tile);
-    std::optional<uint8_t> find(const uint8_t *tile);
-    
-    void save(const std::string file_name, bool full = false) const;
+    void save(const std::string& file_name, bool full = false) const;
     
 private:
-    uint8_t data[256 * 8];
+    std::vector<uint8_t> data;
     size_t nchars;
+    size_t max_chars;
     
-    std::unordered_map<uint64_t, uint8_t> chars;
+    std::unordered_map<uint64_t, size_t> chars;
 };
 
 #endif // HAD_CHARSET_H

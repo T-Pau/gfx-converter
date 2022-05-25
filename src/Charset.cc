@@ -39,18 +39,21 @@
 #include "Exception.h"
 #include "utils.h"
 
-Charset::Charset() : nchars(0) {
-    memset(data, 0, sizeof(data));
-    
+Charset::Charset(size_t max_chars) : nchars(0), data(max_chars * 8, 0), max_chars(max_chars) {
 }
 
-Charset::Charset(const uint8_t data_[]) {
-    memcpy(data, data_, sizeof(data));
-    
+Charset::Charset(std::vector<uint8_t> data_, size_t max_chars) : data(std::move(data_)), max_chars(max_chars) {
+    if (data.size() % 8 != 0) {
+        throw Exception("charset data not multiple of 8 bytes");
+    }
+    if (data.size() > max_chars * 8) {
+        throw Exception("charset has more data than maximum characters");
+    }
+
     auto had_empty = false;
     
-    for (auto i = 0; i < 256; i++) {
-        auto c = reinterpret_cast<const uint64_t *>(data)[i];
+    for (auto i = 0; i < data.size() / 8; i++) {
+        auto c = reinterpret_cast<const uint64_t *>(data.data())[i];
         if (c != 0 || !had_empty) {
             if (chars.find(c) == chars.end()) {
                 chars[c] = i;
@@ -61,9 +64,11 @@ Charset::Charset(const uint8_t data_[]) {
             }
         }
     }
+
+    data.resize(max_chars * 8, 0);
 }
 
-uint8_t Charset::add(const uint8_t tile[]) {
+size_t Charset::add(const uint8_t tile[]) {
     auto c = *reinterpret_cast<const uint64_t *>(tile);
     auto it = chars.find(c);
     
@@ -71,18 +76,18 @@ uint8_t Charset::add(const uint8_t tile[]) {
         return it->second;
     }
     
-    if (nchars == 256) {
+    if (nchars == max_chars) {
         throw Exception("out of characters");
     }
     
     auto index = nchars;
-    memcpy(data + index * 8, tile, 8);
+    memcpy(data.data() + index * 8, tile, 8);
     chars[c] = index;
     nchars++;
     return index;
 }
 
-std::optional<uint8_t> Charset::find(const uint8_t *tile) {
+std::optional<size_t> Charset::find(const uint8_t *tile) {
     auto c = *reinterpret_cast<const uint64_t *>(tile);
     auto it = chars.find(c);
     
@@ -90,10 +95,10 @@ std::optional<uint8_t> Charset::find(const uint8_t *tile) {
         return it->second;
     }
 
-    return std::optional<uint8_t>();
+    return {};
 }
 
 
-void Charset::save(const std::string file_name, bool full) const {
-    save_file(file_name, data, (full ? 256 : nchars) * 8);
+void Charset::save(const std::string& file_name, bool full) const {
+    save_file(file_name, data.data(), (full ? max_chars : nchars) * 8);
 }

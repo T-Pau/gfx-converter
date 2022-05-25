@@ -49,6 +49,7 @@ public:
     
     size_t get_width() const { return width; }
     size_t get_height() const { return height; }
+    const uint8_t* get_data() const { return data.get(); }
 
     uint8_t get(size_t x, size_t y) const;
     void set(size_t x, size_t y, uint8_t value);

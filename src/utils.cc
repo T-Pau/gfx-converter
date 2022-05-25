@@ -32,14 +32,16 @@
   IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <filesystem>
+
 #include "utils.h"
 
 #include "Exception.h"
 
-std::shared_ptr<std::FILE> make_shared_file(std::string file_name, std::string flags) {
+std::shared_ptr<std::FILE> make_shared_file(const std::string& file_name, const std::string& flags) {
     auto fp = std::fopen(file_name.c_str(), flags.c_str());
     
-    if (fp == NULL) {
+    if (fp == nullptr) {
         if (flags.find('w') != std::string::npos) {
             throw Exception("can't create '%s'", file_name.c_str()).append_system_error();
         }
@@ -47,17 +49,52 @@ std::shared_ptr<std::FILE> make_shared_file(std::string file_name, std::string f
             throw Exception("can't open '%s'", file_name.c_str()).append_system_error();
         }
     }
-    return std::shared_ptr<std::FILE>(fp, std::fclose);
+    return {fp, std::fclose};
 }
 
 
-void save_file(const std::string file_name, const uint8_t *data, size_t length) {
+std::vector<uint8_t> load_file(const std::string& file_name) {
+    auto fp = make_shared_file(file_name, "rb");
+    const auto size = std::filesystem::file_size(file_name);
+
+    auto data = std::vector<uint8_t>(size, 0);
+
+    if (fread(reinterpret_cast<char*>(data.data()), 1, size, fp.get()) != size) {
+        throw Exception("can't load '%s'", file_name.c_str()).append_system_error();
+    }
+
+    return data;
+}
+
+
+void save_file(const std::string& file_name, const uint8_t* data, size_t length) {
+    auto fp = make_shared_file(file_name, "wb");
+
+    fwrite(data, length, 1, fp.get());
+
+    // TODO: write error handling
+}
+
+
+void save_file(const std::string& file_name, std::vector<uint8_t>& data) {
     auto fp = make_shared_file(file_name, "wb");
     
-    fwrite(data, length, 1, fp.get());
+    fwrite(data.data(), data.size(), 1, fp.get());
     
     // TODO: write error handling
 }
+
+
+void save_file(const std::string& file_name, std::vector<const std::vector<uint8_t>*>& data_list) {
+    auto fp = make_shared_file(file_name, "wb");
+
+    for (const auto& data : data_list) {
+        fwrite(data->data(), data->size(), 1, fp.get());
+    }
+
+    // TODO: write error handling
+}
+
 
 std::string string_format(const char *format, ...) {
     va_list ap;
@@ -71,7 +108,7 @@ std::string string_format_v(const char *format, va_list ap) {
     auto size = strlen(format) + 50;
     std::string str;
     va_list ap2;
-    while (1) {
+    while (true) {
         str.resize(size);
         va_copy(ap2, ap);
         int n = vsnprintf((char *)str.data(), size, format, ap2);

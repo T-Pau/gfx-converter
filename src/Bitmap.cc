@@ -37,12 +37,15 @@
 #include "Exception.h"
 #include "utils.h"
 
-Bitmap::Bitmap(size_t w, size_t h) : width(w), height(h), bitmap(std::make_unique<uint8_t[]>(width * height * 8)), screen(width, height) {
+Bitmap::Bitmap(size_t w, size_t h, Layout layout) : width(w), height(h), layout(layout), bitmap(width * height * 8, 0), screen(width, height) {
 }
 
-Bitmap::Bitmap(std::shared_ptr<Image> image, std::optional<uint8_t> background_color, std::optional<uint8_t> foreground_color) : width(image->get_width() / 8), height(image->get_height() / 8), bitmap(std::make_unique<uint8_t[]>(width * height * 8)), screen(width, height) {
+Bitmap::Bitmap(const std::shared_ptr<Image>& image, Layout layout, std::optional<uint8_t> background_color, std::optional<uint8_t> foreground_color) : width(image->get_width() / 8), height(image->get_height() / 8), layout(layout), bitmap((width * height * 8), 0), screen(width, height) {
     if (image->get_width() % 8 != 0 || image->get_height() % 8 != 0) {
         throw Exception("image dimensions not multiple of 8");
+    }
+    if (layout == SPECTRUM && (width != 32 || height != 24)) {
+        throw Exception("image dimensions for Spectrum layout must be 256x192");
     }
     
     for (size_t screen_y = 0; screen_y < height; screen_y++) {
@@ -63,14 +66,32 @@ Bitmap::Bitmap(std::shared_ptr<Image> image, std::optional<uint8_t> background_c
 
 
 void Bitmap::set_tile(size_t x, size_t y, const uint8_t tile[], uint8_t foreground_color, uint8_t background_color) {
-    memcpy(bitmap.get() + (y * width + x) * 8, tile, 8);
-    //screen.set(x, y, background_color | (foreground_color << 4));
-    screen.set(x, y, foreground_color | (background_color << 4));
+    switch (layout) {
+        case C64:
+            memcpy(bitmap.data() + (y * width + x) * 8, tile, 8);
+            screen.set(x, y, foreground_color | (background_color << 4));
+            break;
+
+        case SPECTRUM: {
+            if ((foreground_color & 0x8) != (background_color & 0x8) && foreground_color != 0 && background_color != 0) {
+                throw Exception("mixing dark and bright colors").set_position(x, y);
+            }
+            for (size_t tile_y = 0; tile_y < 8; tile_y++) {
+                size_t part = y / 8;
+                size_t part_y = y % 8;
+                bitmap[part * 2048 + x + part_y * 32 + tile_y * 256] = tile[tile_y];
+            }
+            uint8_t bright = ((background_color & 0x8) | (foreground_color & 0x8)) ? 0x40 : 0;
+            screen.set(x, y, bright | ((foreground_color & 0x7) << 3) | (background_color & 0x7));
+            break;
+        }
+
+    }
 }
 
 
 
-void Bitmap::save(const std::string file_name_prefix) {
-    save_file(file_name_prefix + "-bitmap.bin", bitmap.get(), width * height * 8);
+void Bitmap::save(const std::string& file_name_prefix) const {
+    save_file(file_name_prefix + "-bitmap.bin", bitmap.data(), bitmap.size());
     screen.save(file_name_prefix + "-screen.bin");
 }

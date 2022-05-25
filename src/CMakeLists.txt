@@ -1,6 +1,7 @@
 SET(SOURCES
     Bitmap.cc
     Charset.cc
+    Commandline.cc
     Exception.cc
     Image.cc
     Matrix.cc
@@ -10,6 +11,7 @@ SET(SOURCES
     read_png.cc
     read_printfox.cc
     read_raw.cc
+    read_raw_charset.cc
     SpriteSheet.cc
     TextScreen.cc
     utils.cc
