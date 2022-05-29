@@ -1,3 +1,4 @@
 /build
 gfx-convert.xcodeproj/xcuserdata/
 /gfx-convert.xcodeproj/project.xcworkspace/xcuserdata
+/cmake-build-debug

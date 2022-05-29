@@ -41,6 +41,7 @@ Exception::Exception(const char *format, ...) {
     va_start(ap, format);
     message = string_format_v(format, ap);
     va_end(ap);
+    update_full_message();
 }
 
 Exception Exception::append(const char *format, ...) {
@@ -48,7 +49,8 @@ Exception Exception::append(const char *format, ...) {
     va_start(ap, format);
     message += " " + string_format(format, ap);
     va_end(ap);
-    
+    update_full_message();
+
     return *this;
 }
 
@@ -60,21 +62,21 @@ Exception Exception::append_system_error(int code) {
     return append(": %s", strerror(code));
 }
 
-const char *Exception::what() const throw() {
+
+void Exception::update_full_message() {
     if (!position_set) {
-        return message.c_str();
+        full_message = message.c_str();
     }
     
-    std::string full_message = string_format("%s at (%zu, %zu)", message.c_str(), x, y);
-    
-    return full_message.c_str();
+    full_message = string_format("%s at (%zu, %zu)", message.c_str(), x, y);
 }
 
 Exception Exception::set_position(size_t x_, size_t y_) {
     position_set = true;
     x = x_;
     y = y_;
-    
+    update_full_message();
+
     return *this;
 }
 
@@ -83,6 +85,7 @@ Exception Exception::offset_position(size_t x_offset, size_t y_offset) {
         x += x_offset;
         y += y_offset;
     }
-    
+    update_full_message();
+
     return *this;
 }

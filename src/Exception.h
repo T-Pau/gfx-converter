@@ -41,9 +41,9 @@
 
 class Exception : std::exception {
 public:
-    Exception(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
+    explicit Exception(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
     
-    virtual const char* what() const throw();
+    [[nodiscard]] const char* what() const noexcept override { return full_message.c_str(); }
     
     Exception append(const char *format, ...) __attribute__ ((format (printf, 2, 3)));
     Exception append_system_error(int code = -1);
@@ -51,7 +51,10 @@ public:
     Exception offset_position(size_t x_offset, size_t y_offset);
 
 private:
+    void update_full_message();
+
     std::string message;
+    std::string full_message;
     bool position_set;
     size_t x;
     size_t y;

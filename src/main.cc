@@ -221,7 +221,6 @@ int main(int argc, char **argv) {
                 auto bitmap = Bitmap(image, Bitmap::SPECTRUM, background_color, foreground_color);
                 std::vector<const std::vector<uint8_t>*> data;
                 data.emplace_back(&bitmap.bitmap);
-                data.emplace_back(&bitmap.bitmap);
                 save_file(arguments.arguments[2], data);
                 break;
             }
