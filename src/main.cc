@@ -193,7 +193,8 @@ int main(int argc, char **argv) {
                     std::cerr << "Usage: " << argv[0] << " screen start-charset.bin complete-charset-filename image.png ...\n";
                     exit(1);
                 }
-                auto charset = Charset(load_file(arguments.arguments[1]));
+
+                auto charset = arguments.arguments[1].empty() ? Charset() : Charset(load_file(arguments.arguments[1]));
 
                 auto output_charset_file_name = arguments.arguments[2];
 
