@@ -65,7 +65,7 @@ Exception Exception::append_system_error(int code) {
 
 void Exception::update_full_message() {
     if (!position_set) {
-        full_message = message.c_str();
+        full_message = message;
     }
     
     full_message = string_format("%s at (%zu, %zu)", message.c_str(), x, y);

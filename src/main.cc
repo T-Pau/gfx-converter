@@ -1,6 +1,6 @@
 /*
   main.cc -- main program
-  Copyright (C) 2020 Dieter Baron
+  Copyright (C) Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
   for 8-bit systems.
@@ -11,11 +11,7 @@
   are met:
   1. Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in
-     the documentation and/or other materials provided with the
-     distribution.
-  3. The names of the authors may not be used to endorse or promote
+  2. The names of the authors may not be used to endorse or promote
      products derived from this software without specific prior
      written permission.
 
@@ -44,22 +40,45 @@
 #include "SpriteSheet.h"
 #include "utils.h"
 
+#include <filesystem>
+
 enum Format {
     FORMAT_BITMAP,
-    FORMAT_TEXT,
-    FORMAT_SPRITES,
     FORMAT_CHARSET,
-    FORMAT_SCREEN,
-    FORMAT_RAW,
     FORMAT_NOTER,
     FORMAT_PRINTFOX,
+    FORMAT_RAW,
     FORMAT_RAW_CHARSET,
-    FORMAT_SPECTRUM
+    FORMAT_SCREEN,
+    FORMAT_SPECTRUM,
+    FORMAT_SPRITES,
+    FORMAT_TEXT
+};
+
+std::unordered_map<std::string, Format> format_name = {
+        {"bitmap", FORMAT_BITMAP},
+        {"charset", FORMAT_CHARSET},
+        {"noter", FORMAT_NOTER},
+        {"printfox", FORMAT_PRINTFOX},
+        {"raw", FORMAT_RAW},
+        {"raw-charset", FORMAT_RAW_CHARSET},
+        {"screen", FORMAT_SCREEN},
+        {"spectrum", FORMAT_SPECTRUM},
+        {"sprites", FORMAT_SPRITES},
+        {"text", FORMAT_TEXT}
 };
 
 std::vector<Commandline::Option> options = {
-        Commandline::Option("background", 'b', "index", "specify index of background color , or 'transparent'")
+        Commandline::Option("background", 'b', "index", "specify index of background color , or 'transparent'"),
+        Commandline::Option("output-directory", 'd', "directory", "specify directory to write files to")
 };
+
+std::filesystem::path make_output_filename(const std::filesystem::path& directory, const std::filesystem::path& filename) {
+    if (directory.empty()) {
+        return filename;
+    }
+    return std::filesystem::path(directory) / filename.filename();
+}
 
 int main(int argc, char **argv) {
     auto commandline = Commandline(options, "format image filename-prefix", "gfx-converter by Dieter Baron",
@@ -75,36 +94,10 @@ int main(int argc, char **argv) {
     
     try {
         Format format;
-        
-        if (arguments.arguments[0] == "bitmap") {
-            format = FORMAT_BITMAP;
-        }
-        else if (arguments.arguments[0] == "charset") {
-            format = FORMAT_CHARSET;
-        }
-        else if (arguments.arguments[0] == "sprites") {
-            format = FORMAT_SPRITES;
-        }
-        else if (arguments.arguments[0] == "text") {
-            format = FORMAT_TEXT;
-        }
-        else if (arguments.arguments[0] == "raw") {
-            format = FORMAT_RAW;
-        }
-        else if (arguments.arguments[0] == "raw-charset") {
-            format = FORMAT_RAW_CHARSET;
-        }
-        else if (arguments.arguments[0] == "noter") {
-            format = FORMAT_NOTER;
-        }
-        else if (arguments.arguments[0] == "printfox") {
-            format = FORMAT_PRINTFOX;
-        }
-        else if (arguments.arguments[0] == "screen") {
-            format = FORMAT_SCREEN;
-        }
-        else if (arguments.arguments[0] == "spectrum") {
-            format = FORMAT_SPECTRUM;
+
+        auto it = format_name.find(arguments.arguments[0]);
+        if (it != format_name.end()) {
+            format = it->second;
         }
         else {
             throw Exception("unknown format '%s'", arguments.arguments[0].c_str());
@@ -113,6 +106,7 @@ int main(int argc, char **argv) {
         std::shared_ptr<Image> image;
         std::optional<uint8_t> background_color;
         std::optional<uint8_t> foreground_color;
+        std::filesystem::path output_directory{};
 
         for (const auto& option : arguments.options) {
             if (option.name == "background") {
@@ -123,6 +117,9 @@ int main(int argc, char **argv) {
                     // TODO: error handling
                     background_color = atoi(option.argument.c_str());
                 }
+            }
+            else if (option.name == "output-directory") {
+                output_directory = std::filesystem::path(option.argument);
             }
         }
 
@@ -153,38 +150,38 @@ int main(int argc, char **argv) {
         switch (format) {
             case FORMAT_TEXT: {
                 auto text_screen = TextScreen(image, 0);
-                text_screen.save(arguments.arguments[2]);
+                text_screen.save(make_output_filename(output_directory, arguments.arguments[2]));
                 break;
             }
                 
             case FORMAT_SPRITES: {
                 auto sprites = SpriteSheet(image, 254);
-                sprites.save(arguments.arguments[2]);
+                sprites.save(make_output_filename(output_directory, arguments.arguments[2]));
                 break;
             }
                 
             case FORMAT_CHARSET: {
                 auto bitmap = Bitmap(image, Bitmap::C64, background_color, foreground_color);
-                save_file(std::string(arguments.arguments[2]), bitmap.bitmap);
+                save_file(make_output_filename(output_directory, arguments.arguments[2]), bitmap.bitmap);
                 break;
             }
                 
             case FORMAT_BITMAP: {
                 auto bitmap = Bitmap(image, Bitmap::C64, background_color, foreground_color);
-                bitmap.save(arguments.arguments[2]);
+                bitmap.save(make_output_filename(output_directory, arguments.arguments[2]));
                 break;
             }
                 
             case FORMAT_RAW:
             case FORMAT_RAW_CHARSET:
             case FORMAT_PRINTFOX: {
-                image_write_png(arguments.arguments[2], image);
+                image_write_png(make_output_filename(output_directory, arguments.arguments[2]), image);
                 break;
             }
                 
             case FORMAT_NOTER: {
                 auto bitmap = Noter(image, background_color, foreground_color);
-                bitmap.save(arguments.arguments[2]);
+                bitmap.save(make_output_filename(output_directory, arguments.arguments[2]));
                 break;
             }
             
@@ -212,9 +209,11 @@ int main(int argc, char **argv) {
                         }
                     }
                     auto screen_file_name = file_name.substr(0, file_name.rfind('.')) + ".bin";
-                    save_file(screen_file_name, screen);
+                    save_file(make_output_filename(output_directory, screen_file_name), screen);
                 }
-                charset.save(output_charset_file_name, false);
+                if (!output_charset_file_name.empty()) {
+                    charset.save(make_output_filename(output_directory, output_charset_file_name), false);
+                }
                 break;
             }
 
@@ -222,7 +221,7 @@ int main(int argc, char **argv) {
                 auto bitmap = Bitmap(image, Bitmap::SPECTRUM, background_color, foreground_color);
                 std::vector<const std::vector<uint8_t>*> data;
                 data.emplace_back(&bitmap.bitmap);
-                save_file(arguments.arguments[2], data);
+                save_file(make_output_filename(output_directory, arguments.arguments[2]), data);
                 break;
             }
         }
@@ -234,3 +233,4 @@ int main(int argc, char **argv) {
     
     exit(0);
 }
+

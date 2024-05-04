@@ -1,6 +1,6 @@
 /*
   Exception.h -- basic exception
-  Copyright (C) 2019 Dieter Baron
+  Copyright (C) Dieter Baron
 
   This file is part of gfx-convert, a graphics converter toolbox
   for 8-bit systems.
@@ -11,11 +11,7 @@
   are met:
   1. Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
-  2. Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in
-     the documentation and/or other materials provided with the
-     distribution.
-  3. The names of the authors may not be used to endorse or promote
+  2. The names of the authors may not be used to endorse or promote
      products derived from this software without specific prior
      written permission.
 
@@ -55,9 +51,9 @@ private:
 
     std::string message;
     std::string full_message;
-    bool position_set;
-    size_t x;
-    size_t y;
+    bool position_set{false};
+    size_t x{};
+    size_t y{};
 };
 
 #endif // HAD_EXCEPTION_H
