@@ -36,13 +36,10 @@
 
 #include <cstring>
 
-#include <string.h>
-
 #include <png.h>
 
 #include "Exception.h"
 #include "utils.h"
-
 
 std::shared_ptr<Image> image_read_png(const std::string file_name, std::shared_ptr<Palette> palette) {
     auto fp = make_shared_file(file_name, "rb");
